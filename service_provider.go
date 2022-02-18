@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/beevik/etree"
@@ -1066,14 +1067,19 @@ func (sp *ServiceProvider) validateAssertion(assertion *Assertion, possibleReque
 	}
 
 	audienceRestrictionsValid := len(assertion.Conditions.AudienceRestrictions) == 0
-	audience := firstSet(sp.EntityID, sp.MetadataURL.String())
+	var audiences []string
+	audiences = append(audiences, firstSet(sp.EntityID, sp.MetadataURL.String()))
+	audiences = append(audiences, sp.AcsURL.String())
 	for _, audienceRestriction := range assertion.Conditions.AudienceRestrictions {
-		if audienceRestriction.Audience.Value == audience {
-			audienceRestrictionsValid = true
+		for _, audience := range audiences {
+			if audienceRestriction.Audience.Value == audience {
+				audienceRestrictionsValid = true
+				break
+			}
 		}
 	}
 	if !audienceRestrictionsValid {
-		return fmt.Errorf("assertion Conditions AudienceRestriction does not contain %q", audience)
+		return fmt.Errorf("assertion Conditions AudienceRestriction does not contain one of the following audiences %q", strings.Join(audiences, ", "))
 	}
 	return nil
 }

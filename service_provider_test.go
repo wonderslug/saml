@@ -1156,7 +1156,7 @@ func TestSPInvalidAssertions(t *testing.T) {
 
 	assertion.Conditions.AudienceRestrictions[0].Audience.Value = "not/our/metadata/url"
 	err = s.validateAssertion(&assertion, []string{"id-9e61753d64e928af5a7a341a97f420c9"}, TimeNow())
-	assert.Check(t, is.Error(err, "assertion Conditions AudienceRestriction does not contain \"https://15661444.ngrok.io/saml2/metadata\""))
+	assert.Check(t, is.Error(err, "assertion Conditions AudienceRestriction does not contain one of the following audiences \"https://15661444.ngrok.io/saml2/metadata, https://15661444.ngrok.io/saml2/acs\""))
 	assertion = Assertion{}
 	xml.Unmarshal(assertionBuf, &assertion)
 
